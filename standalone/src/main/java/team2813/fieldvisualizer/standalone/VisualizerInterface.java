@@ -35,16 +35,19 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 		);
 
 		JComboBox<FieldVisualizer.ViewMode> viewModeComboBox = new JComboBox<>(FieldVisualizer.ViewMode.values());
+		viewModeComboBox.setToolTipText("View Mode");
 		viewModeComboBox.addItemListener(e -> {
 			if(e.getStateChange() == ItemEvent.SELECTED){
 				visualization.setViewMode((FieldVisualizer.ViewMode) e.getItem());
+				requestFocus();
+				repaint();
 			}
 		});
+		viewModeComboBox.setSelectedIndex(1);
+		viewModeComboBox.setSelectedIndex(0);
 		JPanel temp = new JPanel();
 		temp.add(viewModeComboBox);
 		leftMenu.add(temp);
-		viewModeComboBox.setSelectedIndex(1);
-		viewModeComboBox.setSelectedIndex(0);
 		//endregion
 
 		//region right menu setup
@@ -92,16 +95,16 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 		System.out.println("key pressed" + e.getKeyCode());
 		switch(e.getExtendedKeyCode()){
 			case(KeyEvent.VK_W):
-				visualization.moveRobot(10);
+				visualization.moveRobot(1e1);
 				break;
 			case(KeyEvent.VK_S):
-				visualization.moveRobot(-1);
+				visualization.moveRobot(-.75e1);
 				break;
 			case(KeyEvent.VK_A):
-				visualization.turnRobot(Math.toRadians(1));
+				visualization.turnRobot(Math.toRadians(-5));
 				break;
 			case(KeyEvent.VK_D):
-				visualization.turnRobot(Math.toRadians(-1));
+				visualization.turnRobot(Math.toRadians(5));
 				break;
 			default:
 				return;
