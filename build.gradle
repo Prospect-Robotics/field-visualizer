@@ -1,0 +1,23 @@
+plugins {
+	id 'idea'
+}
+
+subprojects {
+	apply plugin: 'java';
+}
+
+project('base') {
+	
+}
+
+project('smartdashboard') {
+	dependencies {
+		compile project(':base')
+	}
+}
+
+project('standalone') {
+	dependencies {
+		compile project(':base')
+	}
+}
