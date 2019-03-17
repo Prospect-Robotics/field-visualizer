@@ -48,6 +48,19 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 		JPanel temp = new JPanel();
 		temp.add(viewModeComboBox);
 		leftMenu.add(temp);
+
+		JSpinner zoomFactorSpinner = new JSpinner(new SpinnerNumberModel(
+				visualization.getZoomFactor(),
+				.2,
+				5,
+				.2
+		));
+		zoomFactorSpinner.addChangeListener(e -> {
+			visualization.setZoomFactor((double)zoomFactorSpinner.getValue());
+			requestFocus();
+			repaint();
+		});
+		leftMenu.add(zoomFactorSpinner);
 		//endregion
 
 		//region right menu setup
@@ -104,6 +117,14 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 				visualization.turnRobot(Math.toRadians(-5));
 				break;
 			case(KeyEvent.VK_D):
+				visualization.turnRobot(Math.toRadians(5));
+				break;
+			case(KeyEvent.VK_Q):
+				visualization.turnRobot(Math.toRadians(-5));
+				visualization.moveRobot(1e1);
+				break;
+			case(KeyEvent.VK_E):
+				visualization.moveRobot(1e1);
 				visualization.turnRobot(Math.toRadians(5));
 				break;
 			default:
