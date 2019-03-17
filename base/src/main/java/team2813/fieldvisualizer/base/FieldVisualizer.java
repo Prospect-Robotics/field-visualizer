@@ -1,10 +1,7 @@
 package team2813.fieldvisualizer.base;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -121,6 +118,15 @@ public class FieldVisualizer extends JPanel {
 
 	private BufferedImage fieldImage;
 
+	private Shape robotShape;
+	{
+		double robotWidth = 4*12, robotLength = 5*12; //TODO get measurements
+		robotShape = new Rectangle2D.Double(
+				-robotLength/2, -robotWidth/2,
+				robotLength, robotWidth
+		);
+	}
+
 	// image and data from https://github.com/wpilibsuite/PathWeaver
 	private static final String fieldImageResourcePath = "2019-field.jpg";
 	// numbers from json file from path weaver
@@ -175,31 +181,9 @@ public class FieldVisualizer extends JPanel {
 			);
 		}
 
-//		if(viewMode == ViewMode.VIEW_ROBOT){
-//			g2d.rotate(-robotAngle, robotX, robotY);
-//		}
-
-//
-//		robotTransform.translate(robotX, robotY);
-//		robotTransform.rotate(robotAngle);
-//
-//		if(viewMode == ViewMode.VIEW_ROBOT || viewMode == ViewMode.VIEW_ROBOT_NORTH_UP){
-//
-//		}
-//
-//		if(viewMode == ViewMode.VIEW_ROBOT){
-//			fieldImageTransform.translate(robotX, robotY);
-//			fieldImageTransform.rotate(robotAngle);
-//		}
-
-
 		robotTransform.rotate(robotAngle, robotX, robotY);
 		robotTransform.translate(robotX, robotY);
-		if(viewMode == ViewMode.VIEW_ROBOT){
-//			globalTransform.rotate(-robotAngle, robotX, robotY);
-		}
 		if(viewMode == ViewMode.VIEW_ROBOT || viewMode == ViewMode.VIEW_ROBOT_NORTH_UP){
-//			globalTransform.translate(robotX, robotY);
 			globalTransform.translate(
 					(getWidth() / 2 / scale) - robotX,
 					(getHeight() / 2 / scale) - robotY
@@ -211,16 +195,11 @@ public class FieldVisualizer extends JPanel {
 
 		g2d.transform(globalTransform);
 
-
-
-
 		g2d.setStroke(new BasicStroke(
 				1/(float)fieldImagePixelToInch,
 				BasicStroke.CAP_BUTT,
 				BasicStroke.JOIN_ROUND
 		));
-
-//		fieldImageTransform.scale(1/fieldImagePixelToInch, 1/fieldImagePixelToInch);
 
 		g2d.drawImage(
 				fieldImage,
@@ -228,29 +207,7 @@ public class FieldVisualizer extends JPanel {
 				null
 		);
 
-//		g2d.setColor(Color.MAGENTA);
-//		g2d.drawLine(0,0,1,1);
-
-//
 		g2d.setColor(Color.RED);
-//
-//		g2d.draw(robotTransform.createTransformedShape(
-//				new Rectangle2D.Double(
-//						-100, -100, 100, 100
-//				)
-//		));
-
-		g2d.draw(new Line2D.Double(
-				robotX, robotY,
-				robotX + Math.cos(robotAngle) * 100,
-				robotY + Math.sin(robotAngle) * 100
-		));
-
-		g2d.setColor(Color.GREEN);
-		g2d.draw(robotTransform.createTransformedShape(
-				new Line2D.Double(
-						0, 0, 100, 0
-				)
-		));
+		g2d.draw(robotTransform.createTransformedShape(robotShape));
 	}
 }
