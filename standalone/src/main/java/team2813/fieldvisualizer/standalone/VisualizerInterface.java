@@ -52,13 +52,34 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 		JSpinner zoomFactorSpinner = new JSpinner(new SpinnerNumberModel(
 				visualization.getZoomFactor(),
 				.2,
-				5,
+				1e4,
 				.2
 		));
 		zoomFactorSpinner.addChangeListener(e -> {
 			visualization.setZoomFactor((double)zoomFactorSpinner.getValue());
 			requestFocus();
 			repaint();
+		});
+		zoomFactorSpinner.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				switch(e.getExtendedKeyCode()){
+					case KeyEvent.VK_ESCAPE:
+					case KeyEvent.VK_ENTER:
+						requestFocus();
+						break;
+					case KeyEvent.VK_UP:
+						zoomFactorSpinner.setValue(zoomFactorSpinner.getNextValue());
+						break;
+					case KeyEvent.VK_DOWN:
+						zoomFactorSpinner.setValue(zoomFactorSpinner.getPreviousValue());
+						break;
+				}
+			}
+			@Override
+			public void keyReleased(KeyEvent e) { }
 		});
 		leftMenu.add(zoomFactorSpinner);
 		//endregion
