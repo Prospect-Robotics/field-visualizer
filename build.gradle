@@ -4,6 +4,8 @@ plugins {
 
 subprojects {
 	apply plugin: 'java';
+	sourceCompatibility = 11
+	targetCompatibility = 11
 }
 
 project('base') {
@@ -14,6 +16,23 @@ project('smartdashboard') {
 	dependencies {
 		compile project(':base')
 	}
+	task addExtension{
+		dependsOn base:build
+		doFirst {
+			def extensionFolder = new File(System.properties['user.home'], 'SmartDashboard/extensions')
+			if(!extensionFolder.exists()){
+            	extensionFolder.mkdirs()
+        	}
+			copy{
+				from project(':base').jar.archivePath
+				into extensionFolder
+			}
+			copy{
+				from project(':smartdashboard').jar.archivePath
+				into extensionFolder
+			}
+		}
+	}
 }
 
 project('standalone') {
@@ -21,3 +40,23 @@ project('standalone') {
 		compile project(':base')
 	}
 }
+
+
+//task addExtension {
+//	dependsOn ':base:build'
+//	dependsOn ':smartdashboard:build'
+//	doFirst {
+//		def extensionFolder = new File(System.properties['user.home'], 'SmartDashboard/extensions')
+//		if(!extensionFolder.exists()){
+//			extensionFolder.mkdirs()
+//		}
+//		copy {
+//			from subprojects.smartdashboard.jar.archivePath
+//			into extensionFolder
+//		}
+//		copy {
+//			from subprojects.base.jar.archivePath
+//			into extensionFolder
+//		}
+//	}
+//}
