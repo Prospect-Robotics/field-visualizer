@@ -134,19 +134,15 @@ public class FieldVisualizer extends JPanel {
 	private static final double fieldImagePixelToInch = (54d / (1372 - 217)) * 12;
 
 	public FieldVisualizer(){
-		fieldImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
-
-//		FIXME
-//		try {
-//			fieldImage = ImageIO.read(getClass().getClassLoader().getResourceAsStream(fieldImageResourcePath));
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			fieldImage = ImageIO.read(getClass().getClassLoader().getResourceAsStream(fieldImageResourcePath));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setViewMode(ViewMode viewMode) {
-		System.out.println(viewMode);
 		this.viewMode = viewMode;
 	}
 
