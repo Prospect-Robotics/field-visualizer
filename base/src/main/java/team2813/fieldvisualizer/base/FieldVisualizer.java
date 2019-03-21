@@ -3,8 +3,8 @@ package team2813.fieldvisualizer.base;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -97,6 +97,26 @@ public class FieldVisualizer extends JPanel {
 	}
 
 	//endregion
+
+	//#region points
+	private Map<String, VisualizerShape> shapesMap = new HashMap<>();
+
+	public void addShape(String name, VisualizerShape point){
+		shapesMap.put(name, point);
+		revalidate();
+		repaint();
+	}
+
+	public void removePoint(String name){
+		shapesMap.remove(name);
+		revalidate();
+		repaint();
+	}
+
+	public VisualizerShape getPoint(String name){
+		return shapesMap.get(name);
+	}
+	//#endregion
 
 	private double zoomFactor = 2;
 
@@ -208,5 +228,14 @@ public class FieldVisualizer extends JPanel {
 
 		g2d.setColor(Color.RED);
 		g2d.draw(robotTransform.createTransformedShape(robotShape));
+
+		for(Map.Entry<String, ? extends VisualizerShape> entry : shapesMap.entrySet()){
+			VisualizerShape shape = entry.getValue();
+			AffineTransform shapeTransform = new AffineTransform();
+			shapeTransform.translate(shape.position.x, shape.position.y);
+			shapeTransform.rotate(shape.angle, shape.position.x, shape.position.y);
+			g2d.setColor(shape.color);
+			g2d.draw(shapeTransform.createTransformedShape(shape.shape));
+		}
 	}
 }

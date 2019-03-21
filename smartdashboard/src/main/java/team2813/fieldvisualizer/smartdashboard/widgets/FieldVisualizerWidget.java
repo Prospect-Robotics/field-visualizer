@@ -2,16 +2,12 @@ package team2813.fieldvisualizer.smartdashboard.widgets;
 
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.smartdashboard.gui.StaticWidget;
-import edu.wpi.first.smartdashboard.gui.elements.bindings.AbstractTableWidget;
 import edu.wpi.first.smartdashboard.properties.NumberProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
-import edu.wpi.first.smartdashboard.types.DataType;
 import edu.wpi.first.smartdashboard.properties.MultiProperty;
-import edu.wpi.first.wpilibj.tables.ITable;
 import team2813.fieldvisualizer.base.FieldVisualizer;
+import team2813.fieldvisualizer.smartdashboard.VisualizerTablePoint;
 
-import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -51,24 +47,31 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		//#region network tables
 		NetworkTable visualizerTable = NetworkTableInstance.getDefault().getTable("visualizer");
 		points = visualizerTable.getSubTable("points");
-		NetworkTable robot = points.getSubTable("robot");
-		robot.addEntryListener("x", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-			visualizer.setRobotX(networkTableValue.getDouble());
-			revalidate();
-			repaint();
-		}, EntryListenerFlags.kUpdate);
-		robot.addEntryListener("y", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-			visualizer.setRobotY(networkTableValue.getDouble());
-			revalidate();
-			repaint();
-		}, EntryListenerFlags.kUpdate);
-		robot.addEntryListener("theta", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-			visualizer.setRobotAngle(networkTableValue.getDouble());
-			revalidate();
-			repaint();
-		}, EntryListenerFlags.kUpdate);
+		points.addSubTableListener(this::pointTableCreationListener, true);
+		NetworkTable robotTable = visualizerTable.getSubTable("robot");
+		robotTable.addEntryListener(
+				this::robotPositionListener,
+				EntryListenerFlags.kUpdate
+				//| EntryListenerFlags.kNew | EntryListenerFlags.kDelete
+		);
 		//#endregion
 
+		revalidate();
+		repaint();
+	}
+
+	//TODO listen for subtable deletion?
+	private void pointTableCreationListener(NetworkTable parent, String name, NetworkTable table){
+		visualizer.addShape(
+				parent.getPath() + name,
+				new VisualizerTablePoint(table)
+		);
+	}
+
+	private void robotPositionListener(NetworkTable table, String key, NetworkTableEntry entry, NetworkTableValue value, int flags){
+		if(key.equals("x")) visualizer.setRobotX(value.getDouble());
+		else if(key.equals("y")) visualizer.setRobotY(value.getDouble());
+		else if(key.equals("angle")) visualizer.setRobotAngle(value.getDouble());
 		revalidate();
 		repaint();
 	}
