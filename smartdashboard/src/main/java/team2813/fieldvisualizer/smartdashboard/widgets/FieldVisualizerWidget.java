@@ -2,11 +2,11 @@ package team2813.fieldvisualizer.smartdashboard.widgets;
 
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.smartdashboard.gui.StaticWidget;
+import edu.wpi.first.smartdashboard.properties.BooleanProperty;
 import edu.wpi.first.smartdashboard.properties.NumberProperty;
 import edu.wpi.first.smartdashboard.properties.Property;
 import edu.wpi.first.smartdashboard.properties.MultiProperty;
 import team2813.fieldvisualizer.base.FieldVisualizer;
-import team2813.fieldvisualizer.smartdashboard.VisualizerTablePoint;
 
 import java.awt.*;
 import java.awt.event.ComponentEvent;
@@ -16,7 +16,9 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 //	public static final DataType[] TYPES = {FieldVisualizerType.get()};
 
 	public final NumberProperty scale = new NumberProperty(this, "Scale");
+	public final NumberProperty pointSize = new NumberProperty(this, "Point Radius (inches)");
 	public final MultiProperty viewMode = new MultiProperty(this, "View Mode");
+	public final BooleanProperty clearPoints = new BooleanProperty(this, "Clear Points");
 
 	public final FieldVisualizer visualizer;
 
@@ -37,6 +39,11 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 
 		scale.setDefault(2d);
 		visualizer.setZoomFactor(scale.getValue().doubleValue());
+		pointSize.setDefault(6d);
+		visualizer.setPointSize(pointSize.getValue().doubleValue());
+
+
+		clearPoints.setDefault(false);
 
 		setLayout(new BorderLayout());
 
@@ -47,7 +54,7 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		//#region network tables
 		NetworkTable visualizerTable = NetworkTableInstance.getDefault().getTable("visualizer");
 		points = visualizerTable.getSubTable("points");
-		points.addSubTableListener(this::pointTableCreationListener, true);
+		points.addEntryListener(this::pointListener, EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
 		NetworkTable robotTable = visualizerTable.getSubTable("robot");
 		robotTable.addEntryListener(
 				this::robotPositionListener,
@@ -60,12 +67,14 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		repaint();
 	}
 
-	//TODO listen for subtable deletion?
-	private void pointTableCreationListener(NetworkTable parent, String name, NetworkTable table){
-		visualizer.addShape(
-				parent.getPath() + name,
-				new VisualizerTablePoint(table)
-		);
+	private void pointListener(NetworkTable table, String key, NetworkTableEntry entry, NetworkTableValue value, int flags){
+		if(key.equals("x")) visualizer.setPointX(value.getDouble());
+		else if(key.equals("y")) visualizer.setPointY(value.getDouble());
+		else if(key.equals("update")) {
+			visualizer.putPoint();
+			revalidate();
+			repaint();
+		}
 	}
 
 	private void robotPositionListener(NetworkTable table, String key, NetworkTableEntry entry, NetworkTableValue value, int flags){
@@ -87,6 +96,15 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		}
 		else if(property == scale){
 			visualizer.setZoomFactor(scale.getValue().doubleValue());
+		}
+		else if(property == clearPoints){
+			if(clearPoints.getValue()){
+				visualizer.clearPoints();
+				clearPoints.setValue(false);
+			}
+		}
+		else if(property == pointSize){
+			visualizer.setPointSize(pointSize.getValue().doubleValue());
 		}
 		revalidate();
 		repaint();

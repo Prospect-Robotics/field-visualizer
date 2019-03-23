@@ -3,6 +3,8 @@ package team2813.fieldvisualizer.base;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +21,9 @@ public class FieldVisualizer extends JPanel {
 	private double robotY = 0;
 	/** inches */
 	private double robotX = 0;
+
+	private double pointX = 0;
+	private double pointY = 0;
 
 	/**
 	 *
@@ -52,6 +57,32 @@ public class FieldVisualizer extends JPanel {
 	 */
 	public void setRobotAngle(double robotAngle) {
 		this.robotAngle = robotAngle;
+	}
+
+	/**
+	 *
+	 * @param robotX x position in inches
+	 */
+	public void setPointX(double robotX) {
+		this.pointX = robotX;
+	}
+
+	/**
+	 *
+	 * @param robotY y position in inches
+	 */
+	public void setPointY(double robotY) {
+		this.pointY = robotY;
+	}
+
+
+	public void putPoint(){
+		points.add(new Point2D.Double(pointX, pointY));
+		System.out.println("point put: ("+pointX+","+pointY+")");
+	}
+
+	public void clearPoints(){
+		points.clear();
 	}
 
 	/**
@@ -98,26 +129,6 @@ public class FieldVisualizer extends JPanel {
 
 	//endregion
 
-	//#region points
-	private Map<String, VisualizerShape> shapesMap = new HashMap<>();
-
-	public void addShape(String name, VisualizerShape point){
-		shapesMap.put(name, point);
-		revalidate();
-		repaint();
-	}
-
-	public void removePoint(String name){
-		shapesMap.remove(name);
-		revalidate();
-		repaint();
-	}
-
-	public VisualizerShape getPoint(String name){
-		return shapesMap.get(name);
-	}
-	//#endregion
-
 	private double zoomFactor = 2;
 
 	public double getZoomFactor() {
@@ -126,6 +137,12 @@ public class FieldVisualizer extends JPanel {
 
 	public void setZoomFactor(double zoomFactor) {
 		this.zoomFactor = zoomFactor;
+	}
+
+	private double pointSize = 6;
+
+	public void setPointSize(double doubleValue) {
+		pointSize = doubleValue;
 	}
 
 	public enum ViewMode {
@@ -140,7 +157,7 @@ public class FieldVisualizer extends JPanel {
 
 	private Shape robotShape;
 	{
-		double robotWidth = 4*12, robotLength = 5*12; //TODO get measurements
+		double robotWidth = 25, robotLength = 30; //TODO get measurements
 		robotShape = new Rectangle2D.Double(
 				-robotLength/2, -robotWidth/2,
 				robotLength, robotWidth
@@ -169,6 +186,8 @@ public class FieldVisualizer extends JPanel {
 	public ViewMode getViewMode() {
 		return viewMode;
 	}
+
+	List<Point2D.Double> points = new ArrayList<>();
 
 	@Override
 	public void paint(Graphics g) {
@@ -228,14 +247,20 @@ public class FieldVisualizer extends JPanel {
 
 		g2d.setColor(Color.RED);
 		g2d.draw(robotTransform.createTransformedShape(robotShape));
+		g2d.fill(robotTransform.createTransformedShape(
+				new Ellipse2D.Double(-3, -3, 6, 6)
+		));
 
-		for(Map.Entry<String, ? extends VisualizerShape> entry : shapesMap.entrySet()){
-			VisualizerShape shape = entry.getValue();
-			AffineTransform shapeTransform = new AffineTransform();
-			shapeTransform.translate(shape.position.x, shape.position.y);
-			shapeTransform.rotate(shape.angle, shape.position.x, shape.position.y);
-			g2d.setColor(shape.color);
-			g2d.draw(shapeTransform.createTransformedShape(shape.shape));
+		g2d.setColor(Color.CYAN);
+		for(Point2D.Double point : points){
+			g2d.fill(new Ellipse2D.Double(
+					point.x - pointSize/2, point.y - pointSize/2,
+					pointSize, pointSize
+			));
 		}
+
+		g2d.setColor(Color.MAGENTA);
+		g2d.drawLine(0,0,12*6,0);
+
 	}
 }
