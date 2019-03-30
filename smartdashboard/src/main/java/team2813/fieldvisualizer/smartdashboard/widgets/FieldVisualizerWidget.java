@@ -13,12 +13,14 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 public class FieldVisualizerWidget extends StaticWidget implements ComponentListener {
-//	public static final DataType[] TYPES = {FieldVisualizerType.get()};
 
 	public final NumberProperty scale = new NumberProperty(this, "Scale");
 	public final NumberProperty pointSize = new NumberProperty(this, "Point Radius (inches)");
 	public final MultiProperty viewMode = new MultiProperty(this, "View Mode");
 	public final BooleanProperty clearPoints = new BooleanProperty(this, "Clear Points");
+
+	public final NumberProperty offsetX = new NumberProperty(this, "Offset X");
+	public final NumberProperty offsetY = new NumberProperty(this, "Offset Y");
 
 	public final FieldVisualizer visualizer;
 
@@ -63,6 +65,9 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		);
 		//#endregion
 
+		offsetX.setDefault(0d);
+		offsetY.setDefault(0d);
+
 		revalidate();
 		repaint();
 	}
@@ -105,6 +110,12 @@ public class FieldVisualizerWidget extends StaticWidget implements ComponentList
 		}
 		else if(property == pointSize){
 			visualizer.setPointSize(pointSize.getValue().doubleValue());
+		}
+		else if(property == offsetX){
+			visualizer.setOffsetX(offsetX.getValue().doubleValue());
+		}
+		else if(property == offsetY){
+			visualizer.setOffsetY(offsetY.getValue().doubleValue());
 		}
 		revalidate();
 		repaint();

@@ -44,7 +44,6 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 			}
 		});
 		viewModeComboBox.setSelectedIndex(1);
-		viewModeComboBox.setSelectedIndex(0);
 		JPanel temp = new JPanel();
 		temp.add(viewModeComboBox);
 		leftMenu.add(temp);
@@ -124,29 +123,44 @@ public class VisualizerInterface extends JPanel implements KeyListener {
 
 	}
 
+	private double moveSpeed = 1e1;
+
 	@Override
 	public void keyPressed(KeyEvent e) {
-		System.out.println("key pressed" + e.getKeyCode());
-		switch(e.getExtendedKeyCode()){
-			case(KeyEvent.VK_W):
-				visualization.moveRobot(1e1);
+		//System.out.println("key pressed" + Integer.toHexString(e.getKeyCode()));
+		int extendedKeyCode = e.getExtendedKeyCode();
+		switch (extendedKeyCode) {
+			case KeyEvent.VK_W:
+			case KeyEvent.VK_NUMPAD8:
+				visualization.moveRobot(moveSpeed);
 				break;
-			case(KeyEvent.VK_S):
-				visualization.moveRobot(-.75e1);
+			case KeyEvent.VK_S:
+			case KeyEvent.VK_NUMPAD2:
+				visualization.moveRobot(-moveSpeed);
 				break;
-			case(KeyEvent.VK_A):
+			case KeyEvent.VK_A:
 				visualization.turnRobot(Math.toRadians(-5));
 				break;
-			case(KeyEvent.VK_D):
+			case KeyEvent.VK_D:
 				visualization.turnRobot(Math.toRadians(5));
 				break;
-			case(KeyEvent.VK_Q):
+			case KeyEvent.VK_Q:
 				visualization.turnRobot(Math.toRadians(-5));
-				visualization.moveRobot(1e1);
+				visualization.moveRobot(moveSpeed);
 				break;
-			case(KeyEvent.VK_E):
-				visualization.moveRobot(1e1);
+			case KeyEvent.VK_E:
+				visualization.moveRobot(moveSpeed);
 				visualization.turnRobot(Math.toRadians(5));
+				break;
+			case KeyEvent.VK_NUMPAD4:
+				visualization.turnRobot(Math.PI / -2);
+				visualization.moveRobot(moveSpeed);
+				visualization.turnRobot(Math.PI / 2);
+				break;
+			case KeyEvent.VK_NUMPAD6:
+				visualization.turnRobot(Math.PI / 2);
+				visualization.moveRobot(moveSpeed);
+				visualization.turnRobot(Math.PI / -2);
 				break;
 			default:
 				return;

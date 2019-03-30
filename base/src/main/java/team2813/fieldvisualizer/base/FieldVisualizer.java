@@ -124,10 +124,24 @@ public class FieldVisualizer extends JPanel {
 	 */
 	public void turnRobot(double amount){
 		robotAngle += amount;
+		robotAngle %= Math.PI * 2;
 		System.out.println(Math.toDegrees(robotAngle));
 	}
 
 	//endregion
+
+	//#region offset
+	private double offsetX = 0, offsetY = 0;
+
+	public void setOffsetX(double offsetX) {
+		this.offsetX = offsetX;
+	}
+
+	public void setOffsetY(double offsetY) {
+		this.offsetY = offsetY;
+	}
+	//#endregion
+
 
 	private double zoomFactor = 2;
 
@@ -155,13 +169,35 @@ public class FieldVisualizer extends JPanel {
 
 	private BufferedImage fieldImage;
 
-	private Shape robotShape;
-	{
-		double robotWidth = 25, robotLength = 30; //TODO get measurements
-		robotShape = new Rectangle2D.Double(
-				-robotLength/2, -robotWidth/2,
-				robotLength, robotWidth
-		);
+
+	private double robotWidth = 25, robotLength = 30; //TODO get measurements
+	public void setRobotWidth(double robotWidth) {
+		this.robotWidth = robotWidth;
+	}
+
+	public void setRobotLength(double robotLength) {
+		this.robotLength = robotLength;
+	}
+
+	private Area robotShape;
+
+	private void updateRobotShape(){
+		robotShape = new Area();
+		// outline
+		robotShape.add(new Area(new Rectangle2D.Double(
+				-robotWidth/2, -robotLength/2,
+				robotWidth, robotLength
+		)));
+//		double arrowWidth = 2, arrowLength = robotLength - 10;
+//		robotShape.subtract(new Area(
+//				new Rectangle2D.Double(arrowWidth / -2, arrowLength / -2, arrowWidth, arrowLength)
+//		));
+//		robotShape.subtract(new Area(
+//				new Line2D.Double()
+//		));
+		AffineTransform transform = new AffineTransform();
+		transform.rotate(Math.PI / 2);
+		robotShape.transform(transform);
 	}
 
 	// image and data from https://github.com/wpilibsuite/PathWeaver
@@ -171,6 +207,7 @@ public class FieldVisualizer extends JPanel {
 	private static final double fieldImagePixelToInch = (54d / (1372 - 217)) * 12;
 
 	public FieldVisualizer(){
+		updateRobotShape();
 		try {
 			fieldImage = ImageIO.read(getClass().getClassLoader().getResourceAsStream(fieldImageResourcePath));
 		}
@@ -191,6 +228,10 @@ public class FieldVisualizer extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
+		//FIXME temp
+		double robotX = this.robotX + offsetX;
+		double robotY = this.robotY + offsetY;
+
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
@@ -223,8 +264,8 @@ public class FieldVisualizer extends JPanel {
 		robotTransform.translate(robotX, robotY);
 		if(viewMode == ViewMode.VIEW_ROBOT || viewMode == ViewMode.VIEW_ROBOT_NORTH_UP){
 			globalTransform.translate(
-					(getWidth() / 2 / scale) - robotX,
-					(getHeight() / 2 / scale) - robotY
+					(getWidth() / 2d / scale) - robotX,
+					(getHeight() / 2d / scale) - robotY
 			);
 			if(viewMode == ViewMode.VIEW_ROBOT){
 				globalTransform.rotate(-robotAngle-Math.PI/2, robotX, robotY);
@@ -246,21 +287,16 @@ public class FieldVisualizer extends JPanel {
 		);
 
 		g2d.setColor(Color.RED);
-		g2d.draw(robotTransform.createTransformedShape(robotShape));
-		g2d.fill(robotTransform.createTransformedShape(
-				new Ellipse2D.Double(-3, -3, 6, 6)
-		));
+		g2d.fill(robotTransform.createTransformedShape(robotShape));
 
 		g2d.setColor(Color.CYAN);
 		for(Point2D.Double point : points){
 			g2d.fill(new Ellipse2D.Double(
-					point.x - pointSize/2, point.y - pointSize/2,
+					point.x - pointSize/2 + offsetX,
+					point.y - pointSize/2 + offsetY,
 					pointSize, pointSize
 			));
 		}
-
-		g2d.setColor(Color.MAGENTA);
-		g2d.drawLine(0,0,12*6,0);
 
 	}
 }
